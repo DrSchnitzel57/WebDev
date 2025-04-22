@@ -104,7 +104,7 @@
             let gameLoopInterval = null;
 
             // --- Configuration ---
-            const bunnySpeed = 5.5; // Adjust for difficulty (pixels per frame)
+            const bunnySpeed = 15.5; // Adjust for difficulty (pixels per frame)
             const collisionDistance = 30; // How close the bunny needs to be to catch (pixels)
             const updateRate = 16; // Roughly 60fps (1000ms / 60fps ≈ 16.67ms)
 
@@ -189,8 +189,8 @@
                 gameLoopInterval = setInterval(gameLoop, updateRate);
             }
 
-            // --- Start the game ---
-            startGame();
+            // --- Start the game after a 2-second delay ---
+            setTimeout(startGame, 2000); // 2000 milliseconds = 2 seconds
 
             // Add a way to restart the game by clicking the message
             message.addEventListener('click', startGame);
