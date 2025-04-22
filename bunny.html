@@ -4,7 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bunny Chase Game</title>
-    <link rel="stylesheet" href="css/bunny.css">
+    <style>
+        /* Basic Reset & Body Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden; /* Prevent scrollbars if bunny goes near edge */
+            background-color: #77dd77; /* Light green background like grass */
+        }
+
+        /* Game Area - takes up full screen and sets cursor */
+        #game-area {
+            width: 100vw; /* 100% of viewport width */
+            height: 100vh; /* 100% of viewport height */
+            position: relative; /* Needed for absolute positioning of children */
+            /* Make sure carrot.png is in the same folder as this HTML file */
+            cursor: url('carrot.png') 16 16, auto; /* Use carrot image as cursor, fallback to default */
+            /* The '16 16' are example hotspot coordinates (center for a 32x32px image). Adjust if needed. */
+        }
+
+        /* Bunny Styling */
+        #bunny {
+            width: 60px;  /* Adjust size as needed */
+            height: 60px; /* Adjust size as needed */
+            /* Make sure bunny.png is in the same folder as this HTML file */
+            background-image: url('bunny.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            position: absolute; /* Allows positioning with top/left */
+            top: 50%; /* Initial position */
+            left: 50%;
+            transform: translate(-50%, -50%); /* Center the bunny */
+            transition: top 0.1s linear, left 0.1s linear; /* Smooth movement */
+
+            /* Hopping Animation */
+            animation: hop 0.4s infinite ease-in-out;
+        }
+
+        /* Hopping Keyframes */
+        @keyframes hop {
+            0%, 100% {
+                transform: translate(-50%, -50%) translateY(0); /* Base position */
+            }
+            50% {
+                transform: translate(-50%, -50%) translateY(-10px); /* Hop up slightly */
+            }
+        }
+
+        /* Game Over Message Styling */
+        #message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 10px;
+            font-size: 1.5em;
+            font-family: sans-serif;
+            text-align: center;
+            z-index: 10; /* Make sure it's above the bunny */
+        }
+
+        .hidden {
+            display: none; /* Hide message initially */
+        }
+    </style>
 </head>
 <body>
     <div id="game-area">
@@ -12,6 +83,119 @@
         <div id="message" class="hidden">Game Over! The bunny caught the carrot!</div>
     </div>
 
-    <script src="js/bunny.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const gameArea = document.getElementById('game-area');
+            const bunny = document.getElementById('bunny');
+            const message = document.getElementById('message');
+
+            // Check if elements exist
+            if (!gameArea || !bunny || !message) {
+                console.error("Game elements not found!");
+                return;
+            }
+
+            // Game state
+            let carrotX = window.innerWidth / 2;
+            let carrotY = window.innerHeight / 2;
+            let bunnyX = bunny.offsetLeft + bunny.offsetWidth / 2;
+            let bunnyY = bunny.offsetTop + bunny.offsetHeight / 2;
+            let gameOver = false;
+            let gameLoopInterval = null;
+
+            // --- Configuration ---
+            const bunnySpeed = 5.5; // Adjust for difficulty (pixels per frame)
+            const collisionDistance = 30; // How close the bunny needs to be to catch (pixels)
+            const updateRate = 16; // Roughly 60fps (1000ms / 60fps ≈ 16.67ms)
+
+            // Track carrot (cursor) position
+            gameArea.addEventListener('mousemove', (event) => {
+                if (!gameOver) {
+                    carrotX = event.clientX;
+                    carrotY = event.clientY;
+                }
+            });
+
+            // Game loop function
+            function gameLoop() {
+                if (gameOver) return;
+
+                // --- Bunny Movement ---
+                // Get current bunny center position
+                bunnyX = bunny.offsetLeft + bunny.offsetWidth / 2;
+                bunnyY = bunny.offsetTop + bunny.offsetHeight / 2;
+
+                // Calculate direction towards carrot
+                let dx = carrotX - bunnyX;
+                let dy = carrotY - bunnyY;
+
+                // Calculate distance
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                // Check for collision
+                if (distance < collisionDistance) {
+                    endGame();
+                    return; // Stop processing this frame
+                }
+
+                // Normalize direction vector (make its length 1)
+                const normalizationFactor = distance + 0.001; // Add epsilon to prevent division by zero
+                let moveX = (dx / normalizationFactor) * bunnySpeed;
+                let moveY = (dy / normalizationFactor) * bunnySpeed;
+
+                // Calculate new bunny top-left position
+                let newBunnyLeft = bunny.offsetLeft + moveX;
+                let newBunnyTop = bunny.offsetTop + moveY;
+
+                // --- Boundary Collision ---
+                const gameAreaRect = gameArea.getBoundingClientRect();
+                newBunnyLeft = Math.max(0, Math.min(newBunnyLeft, gameAreaRect.width - bunny.offsetWidth));
+                newBunnyTop = Math.max(0, Math.min(newBunnyTop, gameAreaRect.height - bunny.offsetHeight));
+
+                // Update bunny position using style.left/top
+                bunny.style.left = `${newBunnyLeft}px`;
+                bunny.style.top = `${newBunnyTop}px`;
+            }
+
+            // Function to end the game
+            function endGame() {
+                gameOver = true;
+                clearInterval(gameLoopInterval); // Stop the game loop
+                message.classList.remove('hidden'); // Show game over message
+                gameArea.style.cursor = 'auto'; // Restore default cursor
+                console.log("Game Over!");
+            }
+
+            // Function to start/restart the game
+            function startGame() {
+                gameOver = false;
+                message.classList.add('hidden'); // Hide message
+                // Ensure carrot.png is in the same folder
+                gameArea.style.cursor = `url('carrot.png') 16 16, auto`; // Set carrot cursor
+
+                // Reset bunny position
+                const startX = gameArea.offsetWidth / 2 - bunny.offsetWidth / 2;
+                const startY = gameArea.offsetHeight / 2 - bunny.offsetHeight / 2;
+                bunny.style.left = `${startX}px`;
+                bunny.style.top = `${startY}px`;
+                bunnyX = startX + bunny.offsetWidth / 2;
+                bunnyY = startY + bunny.offsetHeight / 2;
+
+                // Clear any existing interval before starting a new one
+                if (gameLoopInterval) {
+                    clearInterval(gameLoopInterval);
+                }
+                // Start the game loop
+                gameLoopInterval = setInterval(gameLoop, updateRate);
+            }
+
+            // --- Start the game ---
+            startGame();
+
+            // Add a way to restart the game by clicking the message
+            message.addEventListener('click', startGame);
+
+        }); // End DOMContentLoaded
+    </script>
 </body>
 </html>
