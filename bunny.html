@@ -29,8 +29,8 @@
 
         /* Bunny Styling */
         #bunny {
-            width: 60px;  /* Adjust size as needed */
-            height: 60px; /* Adjust size as needed */
+            width: 100px;  /* Adjust size as needed */
+            height: 100px; /* Adjust size as needed */
             /* Make sure bunny.png is in the same folder as this HTML file */
             background-image: url('assets/img/bunny.png');
             background-size: contain;
@@ -52,7 +52,7 @@
                 transform: translate(-50%, -50%) translateY(0); /* Base position */
             }
             50% {
-                transform: translate(-50%, -50%) translateY(-10px); /* Hop up slightly */
+                transform: translate(-50%, -50%) translateY(-30px); /* Hop up slightly */
             }
         }
 
@@ -80,15 +80,17 @@
 <body>
     <div id="game-area">
         <div id="bunny"></div>
-        <div id="message" class="hidden">Game Over! The bunny caught the carrot!</div>
+        <div id="message" class="hidden">Game Over! The bunny caught the carrot! Click this to play again</div>
     </div>
+
+    </div> <audio id="background-music" src="assets/audio/guardian.mp3" loop preload="auto"></audio>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const gameArea = document.getElementById('game-area');
             const bunny = document.getElementById('bunny');
             const message = document.getElementById('message');
-
+            const backgroundMusic = document.getElementById('background-music'); // <-- ADD THIS LIN
             // Check if elements exist
             if (!gameArea || !bunny || !message) {
                 console.error("Game elements not found!");
@@ -96,17 +98,17 @@
             }
 
             // Game state
-            let carrotX = window.innerWidth / 2;
-            let carrotY = window.innerHeight / 2;
+            let carrotX = 0; // Initialize away from center
+            let carrotY = 0; // Initialize away from center
             let bunnyX = bunny.offsetLeft + bunny.offsetWidth / 2;
             let bunnyY = bunny.offsetTop + bunny.offsetHeight / 2;
             let gameOver = false;
             let gameLoopInterval = null;
 
             // --- Configuration ---
-            const bunnySpeed = 15.5; // Adjust for difficulty (pixels per frame)
+            const bunnySpeed = 100; // Adjust for difficulty (pixels per frame)
             const collisionDistance = 30; // How close the bunny needs to be to catch (pixels)
-            const updateRate = 16; // Roughly 60fps (1000ms / 60fps ≈ 16.67ms)
+            const updateRate = 16.67; // Roughly 60fps (1000ms / 60fps ≈ 16.67ms)
 
             // Track carrot (cursor) position
             gameArea.addEventListener('mousemove', (event) => {
@@ -163,6 +165,14 @@
                 clearInterval(gameLoopInterval); // Stop the game loop
                 message.classList.remove('hidden'); // Show game over message
                 gameArea.style.cursor = 'auto'; // Restore default cursor
+
+            // --- ADD MUSIC CONTROL ---
+            if (backgroundMusic) {
+                backgroundMusic.pause(); // Pause the music
+            }
+            // --- END MUSIC CONTROL ---
+
+
                 console.log("Game Over!");
             }
 
@@ -181,6 +191,21 @@
                 bunnyX = startX + bunny.offsetWidth / 2;
                 bunnyY = startY + bunny.offsetHeight / 2;
 
+                carrotX = 0;
+                carrotY = 0;
+
+                // --- ADD/MODIFY MUSIC CONTROL ---
+                if (backgroundMusic) {
+                    backgroundMusic.currentTime = 0; // Rewind to start
+                    backgroundMusic.play().catch(error => {
+                        // Autoplay might be blocked, log error or handle gracefully
+                        console.error("Audio play failed:", error);
+                        // You might need user interaction (like the first click) to enable audio
+                    });
+                }
+                // --- END MUSIC CONTROL ---
+
+
                 // Clear any existing interval before starting a new one
                 if (gameLoopInterval) {
                     clearInterval(gameLoopInterval);
@@ -193,7 +218,14 @@
             setTimeout(startGame, 2000); // 2000 milliseconds = 2 seconds
 
             // Add a way to restart the game by clicking the message
-            message.addEventListener('click', startGame);
+            message.addEventListener('click', () => {
+                // Optional: You might want to hide the message immediately when clicked,
+                // even before the game actually restarts after the delay. If so, uncomment the next line.
+                message.classList.add('hidden');
+
+                // Call startGame after a 2-second delay
+                setTimeout(startGame, 2000);
+            });
 
         }); // End DOMContentLoaded
     </script>
