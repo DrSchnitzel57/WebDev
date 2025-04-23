@@ -1,0 +1,71 @@
+
+body {
+font-family: cursive;
+font-size: large;
+background-color: beige;
+text-align: center;
+text-justify: auto;
+color: dimgray;
+}
+
+h1 {
+color:darkslategray;
+font-size: 2em;
+text-align: center;
+text-justify: auto;
+padding-bottom: 0.1em;
+}
+
+
+.div-crazy {
+background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Stereogram_Tut_Random_Dot_Shark.png/640px-Stereogram_Tut_Random_Dot_Shark.png);
+color: mintcream;
+font-size: 1.5em;
+text-emphasis: blink;
+text-align: right;
+padding: 5%;
+}
+
+.div-navigation {
+background-color:bisque;
+text-align: justify;
+text-justify: auto;
+padding: 1%;
+border-bottom: 0.1em solid black;
+}
+
+.div-navelement {
+    padding-right: 2%;
+    font-size: 1.5em;
+    color:black;
+    text-decoration: none;
+}
+
+.div-navelement:hover {
+font-weight: bold;
+}
+
+
+.div-upsidedown {
+    rotate: 180deg;
+    padding: 2%;
+}
+
+.div-zelda {
+    background-image:url(https://zelda.nintendo.com/breath-of-the-wild/assets/media/wallpapers/desktop-1.jpg) ;
+    background-size: cover;
+    color: rosybrown;
+    font-size: 3em;
+    text-align: left;
+    text-shadow: black 3px 3px 3px;
+    padding: 10%;
+}
+
+.tableauPlaceholder {
+    background-color: #F0F0F0;
+    border: 1px solid #ccc;
+
+    align-content: center;
+    margin: 0 auto;
+    display: block;
+}
