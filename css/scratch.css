@@ -52,13 +52,11 @@ font-weight: bold;
 }
 
 .div-zelda {
-    background-image:url(https://zelda.nintendo.com/breath-of-the-wild/assets/media/wallpapers/desktop-1.jpg) ;
-    background-size: cover;
-    color: white;
-    font-size: 3em;
-    text-align: left;
-    text-shadow: black 3px 3px 3px;
-    padding: 10%;
+    color: black;
+    font-size: 1.8em;
+    text-align: center;
+    list-style-position: inside;
+    padding: 5%;/
 }
 
 .tableauPlaceholder {
